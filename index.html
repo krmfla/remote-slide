@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+  <head>
+    <meta content="width=device-width, initial-scale=1.0 user-scalable=no" name="viewport"/>
+    <title>real time slides</title>
+    <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font: 13px Helvetica, Arial;
+      background-color: #f5ecc1;
+      background-image: url("https://www.transparenttextures.com/patterns/gplay.png");
+    }
+    .main {
+    width:100%;
+    height:750px;
+    overflow:hidden;
+    position:relative;
+    }
+    .slideBox {
+    width:1000%;
+    position:absolute;
+    left:-50vw;
+    top:75px;
+    transition:all .5s;
+    overflow:hidden;
+    font-size:0;
+    padding:20px 0;
+    }
+    
+    .slide {
+    width:60vw;
+    margin-right:10vw;
+    display:inline-block;
+    background:#EEE;
+    overflow:hidden;
+    box-shadow: 2px 2px 6px #333;
+    }
+
+    .control {
+    width:100%;
+    margin-top:50px;
+    overflow:hidden;
+    /*display:none;*/
+    /*background:black;*/
+    }
+
+    .btn {
+    width:49%; height:150px;
+    margin-right:0.5%;
+    background:orange;
+    text-align:center;
+    line-height:150px;
+    font-size:64px;
+    display:none;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        background-color:white;
+        background-image:none;
+      }
+      img {
+        display:none;
+      }
+      .main {
+      display:none;
+      }
+      .btn {
+      display:inline-block;
+      }
+    }
+
+    </style>
+  </head>
+  <body>
+    <div id="main" class="main">
+      <div id="slideBox" class="slideBox">
+        <div id="slideOrigin" class="slide" style="visibility:hidden;">
+          <img src="images/slide.jpg" width="100%"/>
+        </div>
+        <div class="slide"><img src="images/slide1.jpg" width="100%"/></div>
+        <div class="slide"><img src="images/slide2.jpg" width="100%"/></div>
+        <div class="slide"><img src="images/slide3.jpg" width="100%"/></div>
+        <div class="slide"><img src="images/slide4.jpg" width="100%"/></div>
+        <div class="slide"><img src="images/slide5.jpg" width="100%"/></div>
+        <div class="slide"><img src="images/slide6.jpg" width="100%"/></div>
+      </div>
+    </div>
+    <div class="control">
+      <div class="btn" data-func="-1">《</div>
+      <div class="btn" data-func="1">》</div>
+    </div>
+  </body>
+</html>
+<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+  var socket = io();
+
+  //event binding
+  document.addEventListener("keydown", onKeyDown);
+
+  $(".btn").click(function() {
+    var value = $(this).data("func");
+    socket.emit('switch slide', value);
+  });
+
+  socket.on('switch slide', function(value){
+    moveSlide(value);
+  });
+
+  var moveSlide = (function(direction) {
+    var slideLength = 6;
+    var index = 1;
+    var slideBoxEl = document.getElementById("slideBox");
+
+    function action(direction) {
+      switch(direction) {
+        case -1:
+        case "-1":
+          if (index > 1) { index -= 1 }
+          break;
+        case 1:
+        case "1":
+          if (index < slideLength) { index += 1 }
+          break;
+      }
+      var leftText = (20 - (index * 70)) + "vw";
+      slideBoxEl.style.left = leftText;
+    }
+
+    return action;
+  })();
+
+  function onKeyDown(event) {
+    switch (event.keyCode) {
+      case 37:
+        moveSlide("-1");
+        break;
+      case 39:
+        moveSlide("1");
+        break;
+    }
+  }
+</script>
